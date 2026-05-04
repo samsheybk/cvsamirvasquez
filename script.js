@@ -35,19 +35,19 @@ window.onload = () => {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-
+        
         const targetId = this.getAttribute('href');
         if (targetId === '#') return;
-
+        
         const targetElement = document.querySelector(targetId);
         if (targetElement) {
             const headerOffset = 80;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
+  
             window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth"
+                 top: offsetPosition,
+                 behavior: "smooth"
             });
         }
     });
@@ -68,7 +68,7 @@ if (currentTheme === 'light') {
 
 themeToggleBtn.addEventListener('click', () => {
     body.classList.toggle('light-mode');
-
+    
     if (body.classList.contains('light-mode')) {
         localStorage.setItem('theme', 'light');
         themeToggleBtn.textContent = '🌙';
@@ -82,10 +82,10 @@ themeToggleBtn.addEventListener('click', () => {
 async function loadCarouselImages() {
     const track = document.getElementById('dynamic-carousel');
     if (!track) return;
-
+    
     let i = 1;
     let imagesHTML = '';
-
+    
     // Helper function to check if an image exists
     const checkImageExists = (url) => {
         return new Promise((resolve) => {
@@ -99,7 +99,7 @@ async function loadCarouselImages() {
     while (true) {
         const url = `Dashboards/${i}.png`;
         const exists = await checkImageExists(url);
-
+        
         if (exists) {
             imagesHTML += `<img src="${url}" alt="Dashboard ${i}" class="carousel-img">`;
             i++;
@@ -108,7 +108,7 @@ async function loadCarouselImages() {
             break;
         }
     }
-
+    
     // Inject images (duplicated for the infinite scroll effect)
     if (imagesHTML !== '') {
         track.innerHTML = imagesHTML + imagesHTML;
@@ -117,53 +117,6 @@ async function loadCarouselImages() {
 
 // Call the function when the page loads
 document.addEventListener("DOMContentLoaded", loadCarouselImages);
-
-// Mobile Menu Toggle Logic
-const menuToggle = document.getElementById('menu-toggle');
-const navLinks = document.querySelector('.nav-links');
-const navLinksItems = document.querySelectorAll('.nav-links a');
-const navClose = document.getElementById('nav-close');
-const navOverlay = document.getElementById('nav-overlay');
-
-function openMenu() {
-    menuToggle.classList.add('active');
-    navLinks.classList.add('active');
-    navOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeMenu() {
-    menuToggle.classList.remove('active');
-    navLinks.classList.remove('active');
-    navOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-if (menuToggle && navLinks) {
-    // Open menu
-    menuToggle.addEventListener('click', () => {
-        if (navLinks.classList.contains('active')) {
-            closeMenu();
-        } else {
-            openMenu();
-        }
-    });
-
-    // Close button inside nav
-    if (navClose) {
-        navClose.addEventListener('click', closeMenu);
-    }
-
-    // Overlay click closes menu
-    if (navOverlay) {
-        navOverlay.addEventListener('click', closeMenu);
-    }
-
-    // Close menu when a link is clicked
-    navLinksItems.forEach(item => {
-        item.addEventListener('click', closeMenu);
-    });
-}
 
 // Like Button Logic
 const likeBtn = document.getElementById('like-btn');
@@ -190,7 +143,7 @@ if (likeBtn && likeCount) {
             hasLiked = false;
             likeBtn.classList.remove('liked');
         }
-
+        
         likeCount.textContent = currentLikes;
         localStorage.setItem('cv_likes', currentLikes);
         localStorage.setItem('cv_has_liked', hasLiked);
