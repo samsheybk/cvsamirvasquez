@@ -50,19 +50,19 @@ window.onload = () => {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         const targetId = this.getAttribute('href');
         if (targetId === '#') return;
-        
+
         const targetElement = document.querySelector(targetId);
         if (targetElement) {
             const headerOffset = 80;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-  
+
             window.scrollTo({
-                 top: offsetPosition,
-                 behavior: "smooth"
+                top: offsetPosition,
+                behavior: "smooth"
             });
 
             // Close mobile menu after scrolling
@@ -90,7 +90,7 @@ if (themeToggleBtn) {
 
     themeToggleBtn.addEventListener('click', () => {
         body.classList.toggle('light-mode');
-        
+
         if (body.classList.contains('light-mode')) {
             localStorage.setItem('theme', 'light');
             themeToggleBtn.textContent = '🌙';
@@ -105,10 +105,10 @@ if (themeToggleBtn) {
 async function loadCarouselImages() {
     const track = document.getElementById('dynamic-carousel');
     if (!track) return;
-    
+
     let i = 1;
     let imagesHTML = '';
-    
+
     // Helper function to check if an image exists
     const checkImageExists = (url) => {
         return new Promise((resolve) => {
@@ -122,7 +122,7 @@ async function loadCarouselImages() {
     while (true) {
         const url = `Dashboards/${i}.png`;
         const exists = await checkImageExists(url);
-        
+
         if (exists) {
             imagesHTML += `<img src="${url}" alt="Dashboard ${i}" class="carousel-img">`;
             i++;
@@ -131,7 +131,7 @@ async function loadCarouselImages() {
             break;
         }
     }
-    
+
     // Inject images (duplicated for the infinite scroll effect)
     if (imagesHTML !== '') {
         track.innerHTML = imagesHTML + imagesHTML;
@@ -191,40 +191,45 @@ if (ctaModal) {
 }
 
 if (ctaForm) {
-        ctaForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('cta-name').value.trim();
-            const phone = document.getElementById('cta-phone').value.trim();
-            const email = document.getElementById('cta-email').value.trim();
-            const message = document.getElementById('cta-message').value.trim();
+    ctaForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('cta-name').value.trim();
+        const phone = document.getElementById('cta-phone').value.trim();
+        const email = document.getElementById('cta-email').value.trim();
+        const message = document.getElementById('cta-message').value.trim();
 
-            let text = `Hola Samir, soy *${name}*. Me interesa crear mi propia web.\n\n`;
-            text += `📱 Teléfono: ${phone}\n`;
-            text += `📧 Correo: ${email}`;
-            if (message) {
-                text += `\n\n💬 Mensaje: ${message}`;
-            }
+        let text = `Hola Samir, soy *${name}*. Me interesa crear mi propia web.\n\n`;
+        text += `📱 Teléfono: ${phone}\n`;
+        text += `📧 Correo: ${email}`;
+        if (message) {
+            text += `\n\n💬 Mensaje: ${message}`;
+        }
 
-            const whatsappUrl = `https://wa.me/584128445726?text=${encodeURIComponent(text)}`;
-            window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `https://wa.me/584128445726?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
 
-            ctaModal.classList.remove('active');
-            ctaForm.reset();
-        });
+        ctaModal.classList.remove('active');
+        ctaForm.reset();
+    });
 }
 
-// Supabase Likes Logic
+// Supabase Configuration
 const SUPABASE_URL = 'https://ejajfqfhrhfgcuwxiyii.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYWpmcWZocmhmZ2N1d3hpeWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTQ5MTYsImV4cCI6MjA5MzQ5MDkxNn0.wg2T2nPWM9H1rOoijwCJEO4M0HDqhY9w76DcK-NvSxU';
 
+let db = null;
+if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// Supabase Likes Logic
 const likeForm = document.getElementById('like-form');
 const likesFeed = document.getElementById('likes-feed');
 
-if (likeForm && likesFeed && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (likeForm && likesFeed && db) {
 
     async function loadLikes() {
-        const { data, error } = await client
+        const { data, error } = await db
             .from('likes')
             .select('*')
             .order('created_at', { ascending: false });
@@ -281,7 +286,7 @@ if (likeForm && likesFeed && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
         submitBtn.textContent = 'Enviando...';
         submitBtn.disabled = true;
 
-        const { error } = await client
+        const { error } = await db
             .from('likes')
             .insert([{ name, comment }]);
 
@@ -298,9 +303,9 @@ if (likeForm && likesFeed && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
     });
 
     async function trackVisit() {
-        await client.from('visits').insert({});
-        const { count, error } = await client.from('visits').select('*', { count: 'exact', head: true });
-        
+        await db.from('visits').insert({});
+        const { count, error } = await db.from('visits').select('*', { count: 'exact', head: true });
+
         if (!error) {
             const heroVisits = document.getElementById('hero-visits-count');
             if (heroVisits) heroVisits.textContent = count;
@@ -338,9 +343,124 @@ if (likeBtn && likeCount) {
             hasLiked = false;
             likeBtn.classList.remove('liked');
         }
-        
+
         likeCount.textContent = currentLikes;
         localStorage.setItem('cv_likes', currentLikes);
         localStorage.setItem('cv_has_liked', hasLiked);
     });
+}
+
+// Blog Dynamic Content
+const blogGrid = document.getElementById('blog-grid');
+
+if (blogGrid && db) {
+    async function renderBlogs() {
+        blogGrid.innerHTML = '<p class="loading-likes">Cargando artículos...</p>';
+
+        try {
+            const { data: posts, error } = await db
+                .from('blogs')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error('Error Supabase:', error.message);
+                blogGrid.innerHTML = `<p class="loading-likes">Error: ${error.message}</p>`;
+                return;
+            }
+
+            if (!posts || posts.length === 0) {
+                blogGrid.innerHTML = '<p class="loading-likes">No hay artículos cargados aún.</p>';
+                return;
+            }
+
+            blogGrid.innerHTML = '';
+
+            posts.forEach(post => {
+                const article = document.createElement('article');
+                article.className = 'blog-card';
+                article.innerHTML = `
+                    <div class="blog-card-image">
+                        <img src="Recursos/${post.id}.jpg" alt="${post.title}" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
+                    </div>
+                    <div class="blog-card-content">
+                        <span class="blog-tag">${post.tag}</span>
+                        <h2>${post.title}</h2>
+                        <p>${post.content}</p>
+                        <div class="blog-meta">
+                            <span>${post.date}</span>
+                            <span>${post.readTime}</span>
+                        </div>
+                        <a href="javascript:void(0)" class="blog-read-more" data-id="${post.id}">Descargar <span class="download-count">${post.downloads || 0}</span> ⬇</a>
+                    </div>
+                `;
+                blogGrid.appendChild(article);
+            });
+
+            document.querySelectorAll('.blog-read-more').forEach(link => {
+                link.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const postId = parseInt(link.getAttribute('data-id'));
+                    const pdfPath = `Blogs%20PDF/${postId}.pdf`;
+                    const countSpan = link.querySelector('.download-count');
+                    
+                    window.open(pdfPath, '_blank');
+
+                    const newCount = (parseInt(countSpan?.textContent) || 0) + 1;
+                    if (countSpan) countSpan.textContent = newCount;
+
+                    await db.from('blogs').update({ downloads: newCount }).eq('id', postId);
+                });
+            });
+        } catch (err) {
+            console.error('Error inesperado:', err);
+            blogGrid.innerHTML = '<p class="loading-likes">Error inesperado al cargar.</p>';
+        }
+    }
+
+    renderBlogs();
+}
+
+// Blog Download Logic
+if (blogGrid) {
+    // Cargar contadores al inicio
+    async function loadDownloadCounts() {
+        if (!db) return;
+        const countEls = document.querySelectorAll('[id^="dl-count-"]');
+        for (const el of countEls) {
+            const articleId = parseInt(el.id.replace('dl-count-', ''));
+            try {
+                const { count, error } = await db.from('downloads').select('*', { count: 'exact', head: true }).eq('article_id', articleId);
+                if (!error && count !== null) el.textContent = count;
+            } catch (err) {}
+        }
+    }
+
+    // Usar delegación de eventos y abrir inmediatamente
+    blogGrid.addEventListener('click', (e) => {
+        const link = e.target.closest('.blog-read-more');
+        if (!link) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const articleId = link.getAttribute('data-article');
+        const pdfPath = `Blogs%20PDF/${articleId}.pdf`;
+
+        // 1. Abrir nueva pestaña INMEDIATAMENTE
+        window.open(pdfPath, '_blank');
+
+        // 2. Actualizar contador visual
+        const countEl = document.getElementById(`dl-count-${articleId}`);
+        if (countEl) {
+            countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+        }
+
+        // 3. Registrar en DB (convertir a entero para evitar errores de tipo)
+        if (db) {
+            db.from('downloads').insert([{ article_id: parseInt(articleId) }]);
+        }
+    });
+
+    loadDownloadCounts();
 }

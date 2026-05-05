@@ -48,54 +48,8 @@
         </section>
 
         <section class="blog-posts section">
-            <div class="blog-grid">
-                <article class="blog-card">
-                    <div class="blog-card-image">
-                        <img src="Recursos/blog_placeholder_1.jpg" alt="Gestión de inventarios" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
-                    </div>
-                    <div class="blog-card-content">
-                        <span class="blog-tag">Inventarios</span>
-                        <h2>La importancia de optimizar el inventario en retail</h2>
-                        <p>Cómo una correcta depuración del maestro de artículos puede transformar la rentabilidad de un supermercado. Lecciones aprendidas tras reducir 120,000 SKU a solo 12,000 productivos.</p>
-                        <div class="blog-meta">
-                            <span>15 Mar 2026</span>
-                            <span>5 min lectura</span>
-                        </div>
-                        <a href="#" class="blog-read-more">Leer más →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-card-image">
-                        <img src="Recursos/blog_placeholder_2.jpg" alt="Modernización TI" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80'">
-                    </div>
-                    <div class="blog-card-content">
-                        <span class="blog-tag">Tecnología</span>
-                        <h2>De la infraestructura local a la nube: un caso real</h2>
-                        <p>Migrar servicios críticos a la nube no es solo una tendencia, es una necesidad operativa. Te cuento cómo logramos un 99.9% de uptime en un proceso completo de modernización.</p>
-                        <div class="blog-meta">
-                            <span>28 Feb 2026</span>
-                            <span>7 min lectura</span>
-                        </div>
-                        <a href="#" class="blog-read-more">Leer más →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-card-image">
-                        <img src="Recursos/blog_placeholder_3.jpg" alt="Evaluación de desempeño" onerror="this.src='https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80'">
-                    </div>
-                    <div class="blog-card-content">
-                        <span class="blog-tag">RRHH</span>
-                        <h2>Evaluaciones 360°: medir para mejorar</h2>
-                        <p>Sin métricas no hay mejora. Cómo diseñamos un sistema de evaluación del desempeño que aumentó la satisfacción laboral en un 30% y retuvo al talento clave.</p>
-                        <div class="blog-meta">
-                            <span>10 Feb 2026</span>
-                            <span>6 min lectura</span>
-                        </div>
-                        <a href="#" class="blog-read-more">Leer más →</a>
-                    </div>
-                </article>
+            <div id="blog-grid" class="blog-grid">
+                <!-- Los artículos se cargan dinámicamente desde script.js -->
             </div>
         </section>
     </main>
@@ -104,6 +58,7 @@
         <p>&copy; 2026 Samir Vasquez. Todos los derechos reservados.</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
 

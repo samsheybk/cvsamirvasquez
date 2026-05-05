@@ -14,7 +14,7 @@
     --font-heading: 'Outfit', sans-serif;
     
     /* Spacing */
-    --section-padding: 6rem 2rem;
+    --section-padding: 4rem 2rem;
 }
 
 body.light-mode {
@@ -848,9 +848,9 @@ footer {
         width: 70%;
         max-width: 300px;
         height: 100vh;
-        background: var(--surface-color);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
+        background: var(--bg-color);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         flex-direction: column;
         justify-content: center;
         align-items: center;

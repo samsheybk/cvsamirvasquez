@@ -1,12 +1,13 @@
 /* Blog specific styles */
 
 .blog-hero {
-    min-height: 60vh;
+    min-height: 40vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding-top: 80px;
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 .blog-hero-content {
@@ -117,10 +118,22 @@
     font-weight: 600;
     font-size: 0.95rem;
     transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .blog-read-more:hover {
     color: var(--accent-secondary);
+}
+
+.download-count {
+    background: var(--accent-primary);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
 }
 
 @media (max-width: 768px) {
