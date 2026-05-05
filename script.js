@@ -218,15 +218,27 @@ const SUPABASE_URL = 'https://ejajfqfhrhfgcuwxiyii.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYWpmcWZocmhmZ2N1d3hpeWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTQ5MTYsImV4cCI6MjA5MzQ5MDkxNn0.wg2T2nPWM9H1rOoijwCJEO4M0HDqhY9w76DcK-NvSxU';
 
 let db = null;
-if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function initSupabase() {
+    if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
+        if (!db) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return true;
+    }
+    return false;
 }
+
+initSupabase();
 
 // Supabase Likes Logic
 const likeForm = document.getElementById('like-form');
 const likesFeed = document.getElementById('likes-feed');
 
-if (likeForm && likesFeed && db) {
+function setupLikes() {
+    if (!likeForm || !likesFeed) return;
+    if (!db && !initSupabase()) {
+        likesFeed.innerHTML = '<p class="loading-likes">Configurando conexión...</p>';
+        setTimeout(setupLikes, 500);
+        return;
+    }
 
     async function loadLikes() {
         const { data, error } = await db
@@ -314,9 +326,9 @@ if (likeForm && likesFeed && db) {
 
     trackVisit();
     loadLikes();
-} else if (likeForm && likesFeed) {
-    likesFeed.innerHTML = '<p class="loading-likes">Configura Supabase para activar el muro de likes.</p>';
 }
+
+document.addEventListener('DOMContentLoaded', setupLikes);
 
 // Like Button Logic
 const likeBtn = document.getElementById('like-btn');
@@ -353,9 +365,16 @@ if (likeBtn && likeCount) {
 // Blog Dynamic Content
 const blogGrid = document.getElementById('blog-grid');
 
-if (blogGrid && db) {
-    async function renderBlogs() {
-        blogGrid.innerHTML = '<p class="loading-likes">Cargando artículos...</p>';
+async function renderBlogs() {
+    if (!blogGrid) return;
+    
+    if (!db && !initSupabase()) {
+        blogGrid.innerHTML = '<p class="loading-likes">Cargando base de datos...</p>';
+        setTimeout(renderBlogs, 500);
+        return;
+    }
+
+    blogGrid.innerHTML = '<p class="loading-likes">Cargando artículos...</p>';
 
         try {
             const { data: posts, error } = await db
@@ -416,10 +435,9 @@ if (blogGrid && db) {
             console.error('Error inesperado:', err);
             blogGrid.innerHTML = '<p class="loading-likes">Error inesperado al cargar.</p>';
         }
-    }
-
-    renderBlogs();
 }
+
+document.addEventListener('DOMContentLoaded', renderBlogs);
 
 // Blog Download Logic
 if (blogGrid) {
