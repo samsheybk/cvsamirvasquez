@@ -1,13 +1,28 @@
+// Mobile Menu Toggle
+const hamburger = document.querySelector('.hamburger');
+const navLinks = document.querySelector('.nav-links');
+
+if (hamburger && navLinks) {
+    function toggleMenu() {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    }
+
+    hamburger.addEventListener('click', toggleMenu);
+}
+
 // Header Scroll Effect
 const header = document.querySelector('header');
 
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
+if (header) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+}
 
 // Scroll Reveal Animation
 function reveal() {
@@ -49,6 +64,13 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                  top: offsetPosition,
                  behavior: "smooth"
             });
+
+            // Close mobile menu after scrolling
+            setTimeout(() => {
+                if (navLinks.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }, 500);
         }
     });
 });
@@ -58,25 +80,26 @@ const themeToggleBtn = document.getElementById('theme-toggle');
 const body = document.body;
 const currentTheme = localStorage.getItem('theme');
 
-// Check for saved theme
-if (currentTheme === 'light') {
-    body.classList.add('light-mode');
-    themeToggleBtn.textContent = '🌙';
-} else {
-    themeToggleBtn.textContent = '☀️';
-}
-
-themeToggleBtn.addEventListener('click', () => {
-    body.classList.toggle('light-mode');
-    
-    if (body.classList.contains('light-mode')) {
-        localStorage.setItem('theme', 'light');
+if (themeToggleBtn) {
+    if (currentTheme === 'light') {
+        body.classList.add('light-mode');
         themeToggleBtn.textContent = '🌙';
     } else {
-        localStorage.setItem('theme', 'dark');
         themeToggleBtn.textContent = '☀️';
     }
-});
+
+    themeToggleBtn.addEventListener('click', () => {
+        body.classList.toggle('light-mode');
+        
+        if (body.classList.contains('light-mode')) {
+            localStorage.setItem('theme', 'light');
+            themeToggleBtn.textContent = '🌙';
+        } else {
+            localStorage.setItem('theme', 'dark');
+            themeToggleBtn.textContent = '☀️';
+        }
+    });
+}
 
 // Dynamic Image Carousel Loader
 async function loadCarouselImages() {
@@ -117,6 +140,178 @@ async function loadCarouselImages() {
 
 // Call the function when the page loads
 document.addEventListener("DOMContentLoaded", loadCarouselImages);
+
+// CTA Modal Logic
+const ctaModal = document.getElementById('cta-modal');
+const ctaClose = document.getElementById('cta-close');
+const ctaForm = document.getElementById('cta-form');
+
+document.querySelectorAll('.cta-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (ctaModal) ctaModal.classList.add('active');
+    });
+});
+
+// CV Modal Logic
+const cvModal = document.getElementById('cv-modal');
+const cvClose = document.getElementById('cv-close');
+
+document.querySelectorAll('.cv-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (cvModal) cvModal.classList.add('active');
+    });
+});
+
+if (ctaClose && ctaModal) {
+    ctaClose.addEventListener('click', () => {
+        ctaModal.classList.remove('active');
+    });
+}
+
+if (cvClose && cvModal) {
+    cvClose.addEventListener('click', () => {
+        cvModal.classList.remove('active');
+    });
+}
+
+if (cvModal) {
+    cvModal.addEventListener('click', (e) => {
+        if (e.target === cvModal) {
+            cvModal.classList.remove('active');
+        }
+    });
+}
+
+if (ctaModal) {
+    ctaModal.addEventListener('click', (e) => {
+        if (e.target === ctaModal) {
+            ctaModal.classList.remove('active');
+        }
+    });
+}
+
+if (ctaForm) {
+        ctaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('cta-name').value.trim();
+            const phone = document.getElementById('cta-phone').value.trim();
+            const email = document.getElementById('cta-email').value.trim();
+            const message = document.getElementById('cta-message').value.trim();
+
+            let text = `Hola Samir, soy *${name}*. Me interesa crear mi propia web.\n\n`;
+            text += `📱 Teléfono: ${phone}\n`;
+            text += `📧 Correo: ${email}`;
+            if (message) {
+                text += `\n\n💬 Mensaje: ${message}`;
+            }
+
+            const whatsappUrl = `https://wa.me/584128445726?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+
+            ctaModal.classList.remove('active');
+            ctaForm.reset();
+        });
+}
+
+// Supabase Likes Logic
+const SUPABASE_URL = 'https://ejajfqfhrhfgcuwxiyii.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYWpmcWZocmhmZ2N1d3hpeWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTQ5MTYsImV4cCI6MjA5MzQ5MDkxNn0.wg2T2nPWM9H1rOoijwCJEO4M0HDqhY9w76DcK-NvSxU';
+
+const likeForm = document.getElementById('like-form');
+const likesFeed = document.getElementById('likes-feed');
+
+if (likeForm && likesFeed && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadLikes() {
+        const { data, error } = await client
+            .from('likes')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error cargando likes:', error);
+            likesFeed.innerHTML = '<p class="loading-likes">No se pudieron cargar los likes.</p>';
+            return;
+        }
+
+        likesFeed.innerHTML = '';
+
+        if (data.length === 0) {
+            likesFeed.innerHTML = '<p class="loading-likes">Sé el primero en dejar un like ❤️</p>';
+        } else {
+            data.forEach(like => {
+                const date = new Date(like.created_at);
+                const formattedDate = date.toLocaleDateString('es-ES', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+
+                const likeEl = document.createElement('div');
+                likeEl.className = 'like-item';
+                likeEl.innerHTML = `
+                    <div class="like-header">
+                        <span class="like-name">${escapeHTML(like.name)}</span>
+                        <span class="like-date">${formattedDate}</span>
+                    </div>
+                    <p class="like-comment">${escapeHTML(like.comment)}</p>
+                `;
+                likesFeed.appendChild(likeEl);
+            });
+        }
+
+        // Update hero stats
+        const heroLikes = document.getElementById('hero-likes-count');
+        if (heroLikes) heroLikes.textContent = data.length;
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    likeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('like-name').value.trim();
+        const comment = document.getElementById('like-comment').value.trim();
+
+        if (!name || !comment) return;
+
+        const submitBtn = likeForm.querySelector('.like-submit');
+        submitBtn.textContent = 'Enviando...';
+        submitBtn.disabled = true;
+
+        const { error } = await client
+            .from('likes')
+            .insert([{ name, comment }]);
+
+        if (error) {
+            console.error('Error enviando like:', error);
+            submitBtn.textContent = 'Error al enviar';
+        } else {
+            likeForm.reset();
+            await loadLikes();
+            submitBtn.textContent = '❤️ Dar Like';
+        }
+
+        submitBtn.disabled = false;
+    });
+
+    async function trackVisit() {
+        await client.from('visits').insert({});
+        const { count, error } = await client.from('visits').select('*', { count: 'exact', head: true });
+        
+        if (!error) {
+            const heroVisits = document.getElementById('hero-visits-count');
+            if (heroVisits) heroVisits.textContent = count;
+        }
+    }
+
+    trackVisit();
+    loadLikes();
+} else if (likeForm && likesFeed) {
+    likesFeed.innerHTML = '<p class="loading-likes">Configura Supabase para activar el muro de likes.</p>';
+}
 
 // Like Button Logic
 const likeBtn = document.getElementById('like-btn');
