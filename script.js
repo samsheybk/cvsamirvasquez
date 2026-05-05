@@ -403,7 +403,7 @@ if (blogGrid && db) {
                     const postId = parseInt(link.getAttribute('data-id'));
                     const pdfPath = `Blogs%20PDF/${postId}.pdf`;
                     const countSpan = link.querySelector('.download-count');
-                    
+
                     window.open(pdfPath, '_blank');
 
                     const newCount = (parseInt(countSpan?.textContent) || 0) + 1;
@@ -432,7 +432,7 @@ if (blogGrid) {
             try {
                 const { count, error } = await db.from('downloads').select('*', { count: 'exact', head: true }).eq('article_id', articleId);
                 if (!error && count !== null) el.textContent = count;
-            } catch (err) {}
+            } catch (err) { }
         }
     }
 
@@ -440,10 +440,10 @@ if (blogGrid) {
     blogGrid.addEventListener('click', (e) => {
         const link = e.target.closest('.blog-read-more');
         if (!link) return;
-        
+
         e.preventDefault();
         e.stopPropagation();
-        
+
         const articleId = link.getAttribute('data-article');
         const pdfPath = `Blogs%20PDF/${articleId}.pdf`;
 
