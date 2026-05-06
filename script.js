@@ -365,120 +365,191 @@ if (likeBtn && likeCount) {
 // Blog Dynamic Content
 const blogGrid = document.getElementById('blog-grid');
 
+// Variables globales para el modal
+const downloadModal = document.getElementById('download-modal');
+const downloadForm = document.getElementById('download-form');
+const downloadClose = document.getElementById('download-close');
+const dlName = document.getElementById('dl-name');
+const dlEmail = document.getElementById('dl-email');
+const dlPhone = document.getElementById('dl-phone');
+const dlProfession = document.getElementById('dl-profession');
+const dlEmailError = document.getElementById('dl-email-error');
+const downloadSubmit = document.querySelector('.download-submit');
+
+let currentDownloadId = null;
+
+// Validación de email
+function isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function validateForm() {
+    const nameOk = dlName && dlName.value.trim().length >= 2;
+    const emailOk = dlEmail && isValidEmail(dlEmail.value.trim());
+    const phoneOk = dlPhone && dlPhone.value.trim().length >= 7;
+    const professionOk = dlProfession && dlProfession.value.trim().length >= 2;
+
+    // Validación visual del email
+    if (dlEmail && dlEmail.value.length > 0) {
+        if (emailOk) {
+            dlEmail.classList.add('valid');
+            dlEmail.classList.remove('invalid');
+            dlEmailError.textContent = '';
+        } else {
+            dlEmail.classList.add('invalid');
+            dlEmail.classList.remove('valid');
+            dlEmailError.textContent = 'Ingresa un correo válido';
+        }
+    } else if (dlEmail) {
+        dlEmail.classList.remove('valid', 'invalid');
+        dlEmailError.textContent = '';
+    }
+
+    const allOk = nameOk && emailOk && phoneOk && professionOk;
+    if (downloadSubmit) downloadSubmit.disabled = !allOk;
+    return allOk;
+}
+
+if (dlName && dlEmail && dlPhone && dlProfession) {
+    [dlName, dlEmail, dlPhone, dlProfession].forEach(input => {
+        input.addEventListener('input', validateForm);
+    });
+}
+
+if (downloadModal && downloadClose) {
+    downloadClose.addEventListener('click', () => {
+        downloadModal.classList.remove('active');
+    });
+
+    downloadModal.addEventListener('click', (e) => {
+        if (e.target === downloadModal) {
+            downloadModal.classList.remove('active');
+        }
+    });
+}
+
+if (downloadForm && downloadModal) {
+    downloadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!validateForm() || !currentDownloadId) return;
+
+        const submitBtn = downloadForm.querySelector('.download-submit');
+        submitBtn.textContent = 'Guardando...';
+        submitBtn.disabled = true;
+
+        // 1. Guardar datos en tabla 'downloads' de Supabase
+        if (db) {
+            const { error: leadError } = await db.from('downloads').insert([
+                {
+                    blog_id: parseInt(currentDownloadId),
+                    name: dlName.value.trim(),
+                    email: dlEmail.value.trim(),
+                    phone: dlPhone.value.trim(),
+                    profession: dlProfession.value.trim()
+                }
+            ]);
+
+            if (leadError) {
+                console.error('Error guardando lead:', leadError);
+                alert('Ocurrió un error al registrar tus datos. Intenta de nuevo.');
+                submitBtn.textContent = 'Descargar Archivo';
+                return;
+            }
+        }
+
+        // 2. Abrir PDF inmediatamente
+        const pdfPath = `Blogs%20PDF/${currentDownloadId}.pdf`;
+        window.open(pdfPath, '_blank');
+
+        // 3. Incrementar contador en tabla 'blogs'
+        if (db) {
+            const countSpan = document.querySelector(`.blog-read-more[data-id="${currentDownloadId}"] .download-count`);
+            const newCount = (parseInt(countSpan?.textContent) || 0) + 1;
+            if (countSpan) countSpan.textContent = newCount;
+
+            await db.from('blogs').update({ downloads: newCount }).eq('id', currentDownloadId);
+        }
+
+        // Reset
+        downloadModal.classList.remove('active');
+        downloadForm.reset();
+        submitBtn.textContent = 'Descargar Archivo';
+        submitBtn.disabled = true;
+        currentDownloadId = null;
+    });
+}
+
 async function renderBlogs() {
     if (!blogGrid) return;
     
     if (!db && !initSupabase()) {
-        blogGrid.innerHTML = '<p class="loading-likes">Cargando base de datos...</p>';
+        blogGrid.innerHTML = '<p class="loading-likes">Configurando conexión...</p>';
         setTimeout(renderBlogs, 500);
         return;
     }
 
     blogGrid.innerHTML = '<p class="loading-likes">Cargando artículos...</p>';
 
-        try {
-            const { data: posts, error } = await db
-                .from('blogs')
-                .select('*')
-                .order('id', { ascending: false });
+    try {
+        const { data: posts, error } = await db
+            .from('blogs')
+            .select('*')
+            .order('id', { ascending: false });
 
-            if (error) {
-                console.error('Error Supabase:', error.message);
-                blogGrid.innerHTML = `<p class="loading-likes">Error: ${error.message}</p>`;
-                return;
-            }
-
-            if (!posts || posts.length === 0) {
-                blogGrid.innerHTML = '<p class="loading-likes">No hay artículos cargados aún.</p>';
-                return;
-            }
-
-            blogGrid.innerHTML = '';
-
-            posts.forEach(post => {
-                const article = document.createElement('article');
-                article.className = 'blog-card';
-                article.innerHTML = `
-                    <div class="blog-card-image">
-                        <img src="Recursos/${post.id}.jpg" alt="${post.title}" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
-                    </div>
-                    <div class="blog-card-content">
-                        <span class="blog-tag">${post.tag}</span>
-                        <h2>${post.title}</h2>
-                        <p>${post.content}</p>
-                        <div class="blog-meta">
-                            <span>${post.date}</span>
-                            <span>${post.readTime}</span>
-                        </div>
-                        <a href="javascript:void(0)" class="blog-read-more" data-id="${post.id}">Descargar <span class="download-count">${post.downloads || 0}</span> ⬇</a>
-                    </div>
-                `;
-                blogGrid.appendChild(article);
-            });
-
-            document.querySelectorAll('.blog-read-more').forEach(link => {
-                link.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    const postId = parseInt(link.getAttribute('data-id'));
-                    const pdfPath = `Blogs%20PDF/${postId}.pdf`;
-                    const countSpan = link.querySelector('.download-count');
-
-                    window.open(pdfPath, '_blank');
-
-                    const newCount = (parseInt(countSpan?.textContent) || 0) + 1;
-                    if (countSpan) countSpan.textContent = newCount;
-
-                    await db.from('blogs').update({ downloads: newCount }).eq('id', postId);
-                });
-            });
-        } catch (err) {
-            console.error('Error inesperado:', err);
-            blogGrid.innerHTML = '<p class="loading-likes">Error inesperado al cargar.</p>';
+        if (error) {
+            console.error('Error Supabase:', error.message);
+            blogGrid.innerHTML = `<p class="loading-likes">Error: ${error.message}</p>`;
+            return;
         }
+
+        if (!posts || posts.length === 0) {
+            blogGrid.innerHTML = '<p class="loading-likes">No hay artículos cargados aún.</p>';
+            return;
+        }
+
+        blogGrid.innerHTML = '';
+
+        posts.forEach(post => {
+            const article = document.createElement('article');
+            article.className = 'blog-card';
+            article.innerHTML = `
+                <div class="blog-card-image">
+                    <img src="Recursos/${post.id}.jpg" alt="${post.title}" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-tag">${post.tag}</span>
+                    <h2>${post.title}</h2>
+                    <p>${post.content}</p>
+                    <div class="blog-meta">
+                        <span>${post.date}</span>
+                        <span>${post.readTime}</span>
+                    </div>
+                    <a href="javascript:void(0)" class="blog-read-more" data-id="${post.id}">Descargar <span class="download-count">${post.downloads || 0}</span> ⬇</a>
+                </div>
+            `;
+            blogGrid.appendChild(article);
+        });
+
+        // Event delegation para descargas
+        blogGrid.addEventListener('click', (e) => {
+            const link = e.target.closest('.blog-read-more');
+            if (!link || !downloadModal) return;
+
+            e.preventDefault();
+            currentDownloadId = parseInt(link.getAttribute('data-id'));
+            downloadModal.classList.add('active');
+            // Limpiar formulario al abrir
+            if (downloadForm) downloadForm.reset();
+            validateForm();
+        });
+    } catch (err) {
+        console.error('Error inesperado:', err);
+        blogGrid.innerHTML = '<p class="loading-likes">Error inesperado al cargar.</p>';
+    }
 }
+
+
 
 document.addEventListener('DOMContentLoaded', renderBlogs);
 
-// Blog Download Logic
-if (blogGrid) {
-    // Cargar contadores al inicio
-    async function loadDownloadCounts() {
-        if (!db) return;
-        const countEls = document.querySelectorAll('[id^="dl-count-"]');
-        for (const el of countEls) {
-            const articleId = parseInt(el.id.replace('dl-count-', ''));
-            try {
-                const { count, error } = await db.from('downloads').select('*', { count: 'exact', head: true }).eq('article_id', articleId);
-                if (!error && count !== null) el.textContent = count;
-            } catch (err) { }
-        }
-    }
-
-    // Usar delegación de eventos y abrir inmediatamente
-    blogGrid.addEventListener('click', (e) => {
-        const link = e.target.closest('.blog-read-more');
-        if (!link) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const articleId = link.getAttribute('data-article');
-        const pdfPath = `Blogs%20PDF/${articleId}.pdf`;
-
-        // 1. Abrir nueva pestaña INMEDIATAMENTE
-        window.open(pdfPath, '_blank');
-
-        // 2. Actualizar contador visual
-        const countEl = document.getElementById(`dl-count-${articleId}`);
-        if (countEl) {
-            countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
-        }
-
-        // 3. Registrar en DB (convertir a entero para evitar errores de tipo)
-        if (db) {
-            db.from('downloads').insert([{ article_id: parseInt(articleId) }]);
-        }
-    });
-
-    loadDownloadCounts();
-}
