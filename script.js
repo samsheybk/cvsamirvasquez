@@ -120,7 +120,7 @@ async function loadCarouselImages() {
     };
 
     while (true) {
-        const url = `Dashboards/${i}.png`;
+        const url = `Dashboards/${i}.webp`;
         const exists = await checkImageExists(url);
 
         if (exists) {
@@ -566,7 +566,7 @@ async function renderBlogs() {
             article.className = 'blog-card';
             article.innerHTML = `
                 <div class="blog-card-image">
-                    <img src="Recursos/${post.id}.jpg" alt="${post.title}" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
+                    <img src="Recursos/${post.id}.webp" alt="${post.title}" onerror="this.src='https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80'">
                 </div>
                 <div class="blog-card-content">
                     <span class="blog-tag">${post.tag}</span>
