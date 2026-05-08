@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Samir Vasquez</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        body {
+            background: #0a0a0a !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        header,
+        footer,
+        .blob {
+            display: none !important;
+        }
+
+        .section-container {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+    </style>
+</head>
+
+<body class="dash-body">
+    <div class="terminal">
+        <div class="terminal-header">
+            <span class="t-prompt">C:\&gt;</span>
+            <a href="index.html" style="color:#569cd6;text-decoration:none;font-size:0.82rem">cd .. &lt;-- Volver al Home</a>
+        </div>
+        <div class="terminal-body" id="terminal">
+            <div class="t-line">
+                <span class="t-prompt">C:\&gt;</span>
+                <span class="t-cmd">dashboard.exe --metrics</span>
+            </div>
+            <div class="t-sep">── ── ── ── ── ── ── ── ── ──</div>
+            <div id="dash-status" class="t-line"><span class="t-prompt">[⏳]</span><span
+                    class="t-cmd">Inicializando...</span></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const statusEl = document.getElementById('dash-status');
+
+        function setStatus(msg, color) {
+            if (!statusEl) return;
+            const cls = color === '#ef4444' ? 't-error' : color === '#f59e0b' ? 't-warn' : 't-success';
+            statusEl.innerHTML = `<span class="t-prompt">[${new Date().toLocaleTimeString()}]</span><span class="${cls}">${msg}</span>`;
+        }
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function fmt(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : n; }
+
+        (async function () {
+            const term = document.getElementById('terminal');
+            function append(html) { term.insertAdjacentHTML('beforeend', html); }
+            function appendLn(label, content, cls = '') {
+                append(`<div class="t-line"><span class="t-prompt">${label}</span><span class="${cls}">${content}</span></div>`);
+            }
+            function section(title) {
+                append(`<div class="t-sep">── ${title} ──</div>`);
+            }
+
+            if (typeof supabase === 'undefined') { setStatus('SDK no cargado', '#ef4444'); return; }
+            if (typeof SUPABASE_URL === 'undefined' || SUPABASE_URL === 'https://tu-proyecto.supabase.co') {
+                setStatus('Configura SUPABASE_URL en config.js', '#ef4444'); return;
+            }
+
+            setStatus('Conectando...', '#22c55e');
+
+            try {
+                const d = typeof db !== 'undefined' && db !== null ? db : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                const [cv, cl, cd, cp, likes, visits, downloads, blogs] = await Promise.all([
+                    d.from('visits').select('*', { count: 'exact', head: true }),
+                    d.from('likes').select('*', { count: 'exact', head: true }),
+                    d.from('downloads').select('*', { count: 'exact', head: true }),
+                    d.from('blogs').select('*', { count: 'exact', head: true }),
+                    d.from('likes').select('*'),
+                    d.from('visits').select('*'),
+                    d.from('downloads').select('*'),
+                    d.from('blogs').select('*'),
+                ]);
+
+                for (const [n, r] of [
+                    ['visits', cv], ['likes', cl], ['downloads', cd], ['blogs', cp],
+                    ['likes data', likes], ['visits data', visits],
+                    ['downloads data', downloads], ['blogs data', blogs]
+                ]) {
+                    if (r.error) { setStatus(n + ': ' + r.error.message, '#ef4444'); return; }
+                }
+
+                setStatus('Conectado a Supabase', '#22c55e');
+
+                // ── Metrics ──
+                section('METRICAS GLOBALES');
+                append(`<div class="t-metrics">
+            <div class="t-metric"><div class="t-metric-value">${fmt(cv.count)}</div><div class="t-metric-label">Visitas</div></div>
+            <div class="t-metric"><div class="t-metric-value">${fmt(cl.count)}</div><div class="t-metric-label">Likes</div></div>
+            <div class="t-metric"><div class="t-metric-value">${fmt(cd.count)}</div><div class="t-metric-label">Descargas</div></div>
+            <div class="t-metric"><div class="t-metric-value">${fmt(cp.count)}</div><div class="t-metric-label">Articulos</div></div>
+        </div>`);
+                appendLn('ℹ️', `Total de interacciones: <span class="t-number">${fmt(cv.count + cl.count + cd.count)}</span>`);
+
+        // ── Pie Chart ──
+        section('DISTRIBUCION');
+        const slices = [
+            { label: 'Visitas', val: cv.count, color: '#569cd6' },
+            { label: 'Likes', val: cl.count, color: '#ff5f57' },
+            { label: 'Descargas', val: cd.count, color: '#28ca41' },
+        ];
+        const realTotal = slices.reduce((s, x) => s + x.val, 0);
+        const t = realTotal || 1;
+
+        const pieDiv = document.createElement('div');
+        pieDiv.className = 't-pie';
+
+        const pieChart = document.createElement('div');
+        pieChart.className = 't-pie-chart';
+        const stops = [];
+        let cum = 0;
+        slices.forEach(s => {
+            const pct = s.val / t;
+            if (pct === 0) return;
+            const from = (cum * 100).toFixed(2);
+            const to = ((cum + pct) * 100).toFixed(2);
+            stops.push(`${s.color} ${from}% ${to}%`);
+            cum += pct;
+        });
+        pieChart.style.background = stops.length ? `conic-gradient(${stops.join(', ')})` : '#1a1a1a';
+        const hole = document.createElement('div');
+        hole.className = 't-pie-hole';
+        pieChart.appendChild(hole);
+        pieDiv.appendChild(pieChart);
+
+        const legend = document.createElement('div');
+        legend.className = 't-pie-legend';
+        [...slices].sort((a, b) => b.val - a.val).forEach(s => {
+            const pct = t > 0 ? ((s.val / t) * 100).toFixed(1) : 0;
+            const item = document.createElement('div');
+            item.className = 't-pie-item';
+            const dot = document.createElement('span');
+            dot.className = 't-pie-dot';
+            dot.style.background = s.color;
+            item.appendChild(dot);
+            item.appendChild(document.createTextNode(' ' + s.label + ' '));
+            const valSpan = document.createElement('span');
+            valSpan.className = 't-pie-val';
+            valSpan.textContent = s.val > 0 ? `${fmt(s.val)} (${pct}%)` : '0';
+            item.appendChild(valSpan);
+            legend.appendChild(item);
+        });
+        pieDiv.appendChild(legend);
+        term.appendChild(pieDiv);
+
+                // ── Bar Charts ──
+                section('VISITAS VS LIKES (ULTIMOS 7 DIAS)');
+
+                const days = [];
+                const now = new Date();
+                for (let i = 6; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); days.push(d.toISOString().slice(0, 10)); }
+
+                function byDay(data, field) {
+                    const m = {}; days.forEach(d => m[d] = 0);
+                    (data || []).forEach(item => { const k = item[field] ? new Date(item[field]).toISOString().slice(0, 10) : null; if (k && m[k] !== undefined) m[k]++; });
+                    return days.map(d => m[d]);
+                }
+
+                function renderTBar(id, values, cls) {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const max = Math.max(...values, 1);
+                    if (values.every(v => v === 0)) {
+                        el.innerHTML = '<div class="t-empty">Sin datos en los ultimos 7 dias</div>';
+                        return;
+                    }
+                    el.innerHTML = values.map((v, i) => {
+                        const d = new Date(days[i] + 'T00:00:00');
+                        const lbl = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' });
+                        return `<div class="t-bar-wrapper"><span class="t-bar-value">${v}</span><div class="t-bar ${cls}" style="height:${Math.max(v / max * 80, 3)}px"></div><span class="t-bar-label">${lbl}</span></div>`;
+                    }).join('');
+                }
+
+                const visitsField = (visits.data && visits.data[0] && visits.data[0].hasOwnProperty('date')) ? 'date' : 'created_at';
+                const likesField = (likes.data && likes.data[0] && likes.data[0].hasOwnProperty('date')) ? 'date' : 'created_at';
+
+                const vData = byDay(visits.data, visitsField);
+                const lData = byDay(likes.data, likesField);
+
+                function maxInfo(data, days) {
+                    if (data.every(v => v === 0)) return null;
+                    const maxVal = Math.max(...data);
+                    const idx = data.indexOf(maxVal);
+                    const d = new Date(days[idx] + 'T00:00:00');
+                    const dateStr = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    return { val: maxVal, date: dateStr };
+                }
+
+                const vMax = maxInfo(vData, days);
+                const lMax = maxInfo(lData, days);
+
+                append(`<div style="margin-bottom:0.3rem"><span class="t-highlight">▸ Visitas</span>${vMax ? ` <span class="t-muted" style="font-size:0.7rem">| Max: ${vMax.date} | ${vMax.val} Visitas</span>` : ''}</div>
+                <div class="t-bar-chart" id="tv-chart"></div>
+                <div style="margin:0.5rem 0 0.3rem"><span class="t-highlight">▸ Likes</span>${lMax ? ` <span class="t-muted" style="font-size:0.7rem">| Max: ${lMax.date} | ${lMax.val} Likes</span>` : ''}</div>
+                <div class="t-bar-chart" id="tl-chart"></div>`);
+
+                renderTBar('tv-chart', vData, 'visits');
+                renderTBar('tl-chart', lData, 'likes');
+
+                // ── Kanban ──
+                section('TABLERO DE ARTICULOS');
+                const high = [], mid = [], low = [];
+                (blogs.data || []).forEach(p => {
+                    const dl = p.downloads || 0;
+                    if (dl >= 10) high.push(p);
+                    else if (dl >= 3) mid.push(p);
+                    else low.push(p);
+                });
+
+                append(`<div class="t-kanban">
+            <div class="t-kanban-col">
+                <div class="t-kanban-header">🔥 Alta <span class="t-number">${high.length}</span></div>
+                ${high.length ? high.map(p =>
+                    `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
+                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
+            </div>
+            <div class="t-kanban-col">
+                <div class="t-kanban-header">📊 Media <span class="t-number">${mid.length}</span></div>
+                ${mid.length ? mid.map(p =>
+                    `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
+                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
+            </div>
+            <div class="t-kanban-col">
+                <div class="t-kanban-header">📉 Baja <span class="t-number">${low.length}</span></div>
+                ${low.length ? low.map(p =>
+                    `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
+                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
+            </div>
+        </div>`);
+
+                // ── Timeline ──
+                section('ACTIVIDAD RECIENTE');
+                const items = [];
+                (likes.data || []).slice(-8).reverse().forEach(item => items.push({ type: 'like', date: item.created_at || item.date }));
+                (downloads.data || []).slice(-8).reverse().forEach(item => items.push({ type: 'download', date: item.created_at || item.date }));
+                items.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (items.length === 0) {
+                    append('<div class="t-empty">Sin actividad registrada</div>');
+                } else {
+                    let tlHtml = '<div class="t-timeline">';
+                    items.slice(0, 10).forEach(item => {
+                        const diff = Math.floor((Date.now() - new Date(item.date)) / 60000);
+                        const ago = diff < 1 ? 'Ahora' : diff < 60 ? `hace ${diff} min` : Math.floor(diff / 60) < 24 ? `hace ${Math.floor(diff / 60)}h` : new Date(item.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                        const dot = item.type === 'like' ? 'like' : 'download';
+                        const icon = item.type === 'like' ? '❤️' : '⬇️';
+                        const text = item.type === 'like' ? 'Nuevo like recibido' : 'Nueva descarga';
+                        tlHtml += `<div class="t-tl-item"><span class="t-tl-dot ${dot}"></span><span class="t-tl-text">${icon} ${text}</span><span class="t-tl-date">${ago}</span></div>`;
+                    });
+                    tlHtml += '</div>';
+                    append(tlHtml);
+                }
+
+                // ── Footer ──
+                append(`<div class="t-sep">── ── ── ── ── ── ── ── ── ──</div>
+                <div class="t-line"><span class="t-prompt">C:\&gt;</span><span class="t-success">Proceso completado</span><span class="t-cursor"></span></div>`);
+
+                statusEl.style.display = 'none';
+            } catch (err) {
+                setStatus(err.message, '#ef4444');
+                console.error(err);
+            }
+        })();
+    </script>
+</body>
+
+</html>

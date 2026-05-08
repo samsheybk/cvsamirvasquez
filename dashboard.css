@@ -1,0 +1,350 @@
+/* === Terminal Console Theme === */
+.dash-body {
+    background: #0a0a0a !important;
+    min-height: 100vh;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.terminal {
+    width: 100%;
+    height: 100vh;
+    background: #0d0d0d;
+    font-family: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding-top: 42px;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a transparent;
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1.2rem;
+    background: #0a0a0a;
+    border-bottom: 1px solid #1a1a1a;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.terminal-body {
+    padding: 1.2rem 1.4rem;
+    color: #c0c0c0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.terminal-body::-webkit-scrollbar { width: 6px; }
+.terminal-body::-webkit-scrollbar-track { background: transparent; }
+.terminal-body::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+/* Prompt line */
+.t-line {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.t-prompt {
+    color: #00ff41;
+    flex-shrink: 0;
+}
+
+.t-cmd {
+    color: #e0e0e0;
+}
+
+.t-section {
+    margin: 0.8rem 0 0.4rem;
+    color: #569cd6;
+    font-weight: 600;
+}
+
+.t-sep {
+    color: #333;
+    margin: 0.5rem 0;
+    letter-spacing: 2px;
+}
+
+.t-muted {
+    color: #666;
+}
+
+.t-success {
+    color: #00ff41;
+}
+
+.t-error {
+    color: #ff5f57;
+}
+
+.t-warn {
+    color: #ffbd2e;
+}
+
+.t-highlight {
+    color: #569cd6;
+}
+
+.t-number {
+    color: #b5cea8;
+}
+
+/* Metric grid inside terminal */
+.t-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.t-metric {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    text-align: center;
+}
+
+.t-metric-value {
+    color: #00ff41;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.t-metric-label {
+    color: #666;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.1rem;
+}
+
+/* Bar chart in terminal */
+.t-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    margin: 0.5rem 0;
+    padding: 0.5rem 0;
+    min-height: 80px;
+}
+
+.t-bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.t-bar {
+    width: 100%;
+    border-radius: 2px 2px 0 0;
+    min-height: 3px;
+    transition: height 0.4s ease;
+}
+
+.t-bar.visits { background: #569cd6; }
+.t-bar.likes { background: #ff5f57; }
+
+.t-bar-label {
+    font-size: 0.55rem;
+    color: #555;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.t-bar-value {
+    font-size: 0.6rem;
+    color: #888;
+    font-weight: 700;
+}
+
+/* Pie chart in terminal */
+.t-pie {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+}
+
+.t-pie-chart {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+}
+.t-pie-hole {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: #0d0d0d;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.t-pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.t-pie-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: #aaa;
+}
+
+.t-pie-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.t-pie-val {
+    margin-left: auto;
+    color: #b5cea8;
+}
+
+/* Kanban in terminal */
+.t-kanban {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin: 0.5rem 0;
+    min-width: 0;
+}
+
+.t-kanban-col {
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 0.6rem;
+    background: rgba(255,255,255,0.02);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.t-kanban-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #569cd6;
+    margin-bottom: 0.4rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.t-kanban-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.72rem;
+}
+
+.t-kanban-card-title {
+    color: #d4d4d4;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.t-kanban-card-meta {
+    color: #666;
+    font-size: 0.65rem;
+}
+
+.t-kanban-card-meta strong { color: #b5cea8; }
+
+.t-kanban-empty {
+    color: #555;
+    font-size: 0.72rem;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+/* Timeline in terminal */
+.t-timeline {
+    padding-left: 0.8rem;
+    border-left: 1px solid #2a2a2a;
+    margin: 0.3rem 0;
+}
+
+.t-tl-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+    font-size: 0.75rem;
+}
+
+.t-tl-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.t-tl-dot.like { background: #ff5f57; }
+.t-tl-dot.download { background: #569cd6; }
+
+.t-tl-text {
+    color: #aaa;
+    flex: 1;
+}
+
+.t-tl-date {
+    color: #555;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+}
+
+/* Cursor blink */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.t-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #00ff41;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+}
+
+/* Empty state */
+.t-empty {
+    color: #555;
+    font-size: 0.75rem;
+    padding: 0.3rem 0;
+}
+
+@media (max-width: 700px) {
+    .terminal { padding-top: 38px; }
+    .terminal-body { padding: 0.8rem; font-size: 0.72rem; }
+    .t-metrics { grid-template-columns: repeat(2, 1fr); }
+    .t-kanban { grid-template-columns: 1fr; }
+    .t-kanban-card-title { white-space: normal; word-break: break-word; }
+    .t-pie { flex-direction: column; align-items: flex-start; }
+}
+
+

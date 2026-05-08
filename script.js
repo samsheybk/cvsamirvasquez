@@ -229,6 +229,21 @@ if (splashModal && splashClose && splashCountdown) {
         if (e.target === splashModal) closeSplash();
     });
 
+    const splashImg = document.querySelector('.splash-img');
+    if (splashImg) {
+        splashImg.addEventListener('click', (e) => {
+            const rect = splashImg.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            if (y >= rect.height / 2) {
+                closeSplash();
+                setTimeout(() => {
+                    const el = document.getElementById('contacto');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 400);
+            }
+        });
+    }
+
     const timer = setInterval(() => {
         seconds--;
         splashCountdown.textContent = seconds;
@@ -295,11 +310,13 @@ function setupLikes() {
 
                 const likeEl = document.createElement('div');
                 likeEl.className = 'like-item';
+                const stars = like.rating ? '★'.repeat(like.rating) + '☆'.repeat(5 - like.rating) : '';
                 likeEl.innerHTML = `
                     <div class="like-header">
                         <span class="like-name">${escapeHTML(like.name)}</span>
                         <span class="like-date">${formattedDate}</span>
                     </div>
+                    ${stars ? `<div class="like-stars">${stars}</div>` : ''}
                     <p class="like-comment">${escapeHTML(like.comment)}</p>
                 `;
                 likesFeed.appendChild(likeEl);
@@ -323,12 +340,39 @@ function setupLikes() {
         return div.innerHTML;
     }
 
+    // Star rating interaction
+    let selectedRating = 0;
+    const starContainer = document.getElementById('star-rating');
+    if (starContainer) {
+        const stars = starContainer.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                stars.forEach((s, i) => {
+                    s.textContent = i < selectedRating ? '★' : '☆';
+                    s.classList.toggle('active', i < selectedRating);
+                });
+            });
+            star.addEventListener('mouseenter', () => {
+                const val = parseInt(star.dataset.value);
+                stars.forEach((s, i) => {
+                    s.textContent = i < val ? '★' : '☆';
+                });
+            });
+            star.addEventListener('mouseleave', () => {
+                stars.forEach((s, i) => {
+                    s.textContent = i < selectedRating ? '★' : '☆';
+                });
+            });
+        });
+    }
+
     likeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('like-name').value.trim();
         const comment = document.getElementById('like-comment').value.trim();
 
-        if (!name || !comment) return;
+        if (!name || !comment || selectedRating === 0) return;
 
         const submitBtn = likeForm.querySelector('.like-submit');
         submitBtn.textContent = 'Enviando...';
@@ -336,13 +380,17 @@ function setupLikes() {
 
         const { error } = await db
             .from('likes')
-            .insert([{ name, comment }]);
+            .insert([{ name, comment, rating: selectedRating }]);
 
         if (error) {
             console.error('Error enviando like:', error);
             submitBtn.textContent = 'Error al enviar';
         } else {
             likeForm.reset();
+            selectedRating = 0;
+            if (starContainer) {
+                starContainer.querySelectorAll('.star').forEach(s => { s.textContent = '☆'; s.classList.remove('active'); });
+            }
             await loadLikes();
             submitBtn.textContent = '❤️ Dar Like';
         }

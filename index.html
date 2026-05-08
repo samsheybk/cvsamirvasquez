@@ -39,6 +39,7 @@
                 <li><a href="#likes">Muro de Likes</a></li>
                 <li><a href="#contact">Contacto</a></li>
                 <li><a href="blog.html">Blog</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
                 <li class="nav-social">
                     <a href="https://www.linkedin.com/in/samirvasquez24473747/" target="_blank"
                         rel="noopener noreferrer" aria-label="LinkedIn">
@@ -66,8 +67,7 @@
         <section id="hero" class="hero">
             <div class="hero-content reveal">
                 <div class="profile-img-container">
-                    <img src="Recursos/foto_perfil.webp" alt="Foto de perfil de Samir Vasquez"
-                        class="profile-photo">
+                    <img src="Recursos/foto_perfil.webp" alt="Foto de perfil de Samir Vasquez" class="profile-photo">
                 </div>
                 <div class="hero-text">
                     <p class="greeting">Hola, soy</p>
@@ -121,10 +121,12 @@
                     <img src="Logos/Google_Sheet.webp" alt="Google Sheets" title="Google Sheets">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI"
                         title="Power BI">
-                    <img src="Logos/Loocker%20Studio.svg" alt="Looker Studio" title="Looker Studio">
+                    <img src="Logos/Loocker%20Studio.webp" alt="Looker Studio" title="Looker Studio">
                     <img src="Logos/AppSheet.webp" alt="AppSheet" title="AppSheet">
                     <img src="Logos/glide.webp" alt="Glide" title="Glide">
                     <img src="Logos/Google%20Antigravity.webp" alt="Google Antigravity" title="Google Antigravity">
+                    <img src="Logos/supabase.webp" alt="supabase" title="Supabase">
+                    <img src="Logos/firebase.webp" alt="firebase" title="Firebase">
                 </div>
 
                 <div class="analytics-grid">
@@ -192,6 +194,16 @@
                             <label for="like-comment">Comentario *</label>
                             <textarea id="like-comment" rows="3" required
                                 placeholder="Escribe algo genial..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Calificación *</label>
+                            <div class="star-rating" id="star-rating">
+                                <span class="star" data-value="1">☆</span>
+                                <span class="star" data-value="2">☆</span>
+                                <span class="star" data-value="3">☆</span>
+                                <span class="star" data-value="4">☆</span>
+                                <span class="star" data-value="5">☆</span>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary like-submit">❤️ Dar Like</button>
                     </form>
@@ -294,7 +306,13 @@
     <!-- Splash Modal -->
     <div id="splash-modal" class="splash-modal">
         <div class="splash-modal-content">
-            <button id="splash-close" class="splash-close" aria-label="Cerrar">✕</button>
+            <button id="splash-close" class="splash-close" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round">
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                </svg>
+            </button>
             <img src="Recursos/splash.webp" alt="Bienvenido" class="splash-img">
             <div class="splash-countdown" id="splash-countdown">15</div>
         </div>

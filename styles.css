@@ -1141,6 +1141,33 @@ footer {
     align-items: start;
 }
 
+/* Star Rating */
+.star-rating {
+    display: flex;
+    gap: 0.3rem;
+    direction: row;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+.star-rating .star {
+    color: #555;
+    transition: color 0.2s, transform 0.2s;
+    user-select: none;
+}
+.star-rating .star.active,
+.star-rating .star:hover {
+    color: #f59e0b;
+}
+.star-rating .star:hover {
+    transform: scale(1.2);
+}
+.like-stars {
+    color: #f59e0b;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin: 0.2rem 0;
+}
+
 .like-form {
     background: var(--surface-color);
     padding: 2rem;
@@ -1520,35 +1547,34 @@ footer {
     background: rgba(0, 0, 0, 0.5);
     border: none;
     color: white;
-    font-size: 1.3rem;
     cursor: pointer;
-    padding: 0.4rem 0.7rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
     transition: background 0.3s, transform 0.3s;
-    line-height: 1;
     z-index: 10;
 }
 
 .splash-close:hover {
     background: rgba(0, 0, 0, 0.8);
-    transform: rotate(90deg);
+    transform: scale(1.15);
+}
+
+.splash-close svg {
+    display: block;
 }
 
 .splash-countdown {
     position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
+    bottom: 0.6rem;
+    right: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
     font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: 700;
-    padding: 0.4rem 1rem;
-    border-radius: 30px;
-    backdrop-filter: blur(4px);
-    min-width: 60px;
-    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 400;
 }
 
 @media (max-width: 480px) {
@@ -1556,9 +1582,9 @@ footer {
         width: 95%;
     }
     .splash-countdown {
-        font-size: 0.95rem;
-        bottom: 0.7rem;
-        padding: 0.3rem 0.8rem;
+        font-size: 0.65rem;
+        bottom: 0.5rem;
+        right: 0.6rem;
     }
 }
 
