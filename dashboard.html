@@ -73,6 +73,9 @@
             function section(title) {
                 append(`<div class="t-sep">── ${title} ──</div>`);
             }
+            
+            // Etiqueta de depuración para confirmar carga de secretos
+            append(`<div class="t-line" style="opacity: 0.5; font-size: 0.8em;">[System] Validando conexión con Supabase...</div>`);
 
             if (typeof supabase === 'undefined') { setStatus('SDK no cargado', '#ef4444'); return; }
             if (typeof SUPABASE_URL === 'undefined' || SUPABASE_URL === 'https://tu-proyecto.supabase.co') {
