@@ -110,7 +110,7 @@
                 append(`<div class="t-metrics">
             <div class="t-metric"><div class="t-metric-value">${fmt(cv.count)}</div><div class="t-metric-label">Visitas</div></div>
             <div class="t-metric"><div class="t-metric-value">${fmt(cl.count)}</div><div class="t-metric-label">Likes</div></div>
-            <div class="t-metric"><div class="t-metric-value">${fmt(cd.count)}</div><div class="t-metric-label">Descargas</div></div>
+            <div class="t-metric"><div class="t-metric-value">${fmt(cd.count)}</div><div class="t-metric-label">Reproducciones</div></div>
             <div class="t-metric"><div class="t-metric-value">${fmt(cp.count)}</div><div class="t-metric-label">Articulos</div></div>
         </div>`);
                 appendLn('ℹ️', `Total de interacciones: <span class="t-number">${fmt(cv.count + cl.count + cd.count)}</span>`);
@@ -120,7 +120,7 @@
         const slices = [
             { label: 'Visitas', val: cv.count, color: '#569cd6' },
             { label: 'Likes', val: cl.count, color: '#ff5f57' },
-            { label: 'Descargas', val: cd.count, color: '#28ca41' },
+            { label: 'Reproducciones', val: cd.count, color: '#28ca41' },
         ];
         const realTotal = slices.reduce((s, x) => s + x.val, 0);
         const t = realTotal || 1;
@@ -235,21 +235,21 @@
                 <div class="t-kanban-header">🔥 Alta <span class="t-number">${high.length}</span></div>
                 ${high.length ? high.map(p =>
                     `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
-                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                     <div class="t-kanban-card-meta">▶ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
                 ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
             </div>
             <div class="t-kanban-col">
                 <div class="t-kanban-header">📊 Media <span class="t-number">${mid.length}</span></div>
                 ${mid.length ? mid.map(p =>
                     `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
-                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                     <div class="t-kanban-card-meta">▶ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
                 ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
             </div>
             <div class="t-kanban-col">
                 <div class="t-kanban-header">📉 Baja <span class="t-number">${low.length}</span></div>
                 ${low.length ? low.map(p =>
                     `<div class="t-kanban-card"><div class="t-kanban-card-title">${esc(p.title || '')}</div>
-                     <div class="t-kanban-card-meta">⬇️ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
+                     <div class="t-kanban-card-meta">▶ <strong>${p.downloads || 0}</strong> · ${p.date || '—'}</div></div>`
                 ).join('') : '<div class="t-kanban-empty">Sin articulos</div>'}
             </div>
         </div>`);
@@ -258,7 +258,7 @@
                 section('ACTIVIDAD RECIENTE');
                 const items = [];
                 (likes.data || []).slice(-8).reverse().forEach(item => items.push({ type: 'like', date: item.created_at || item.date }));
-                (downloads.data || []).slice(-8).reverse().forEach(item => items.push({ type: 'download', date: item.created_at || item.date }));
+                (downloads.data || []).slice(-8).reverse().forEach(item => items.push({ type: 'play', date: item.created_at || item.date }));
                 items.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 if (items.length === 0) {
@@ -268,9 +268,9 @@
                     items.slice(0, 10).forEach(item => {
                         const diff = Math.floor((Date.now() - new Date(item.date)) / 60000);
                         const ago = diff < 1 ? 'Ahora' : diff < 60 ? `hace ${diff} min` : Math.floor(diff / 60) < 24 ? `hace ${Math.floor(diff / 60)}h` : new Date(item.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-                        const dot = item.type === 'like' ? 'like' : 'download';
-                        const icon = item.type === 'like' ? '❤️' : '⬇️';
-                        const text = item.type === 'like' ? 'Nuevo like recibido' : 'Nueva descarga';
+                        const dot = item.type === 'like' ? 'like' : 'play';
+                        const icon = item.type === 'like' ? '❤️' : '▶';
+                        const text = item.type === 'like' ? 'Nuevo like recibido' : 'Nueva reproduccion';
                         tlHtml += `<div class="t-tl-item"><span class="t-tl-dot ${dot}"></span><span class="t-tl-text">${icon} ${text}</span><span class="t-tl-date">${ago}</span></div>`;
                     });
                     tlHtml += '</div>';

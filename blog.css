@@ -1,59 +1,39 @@
-/* Blog specific styles */
-
+/* Blog Hero */
 .blog-hero {
-    min-height: 40vh;
+    min-height: 60vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 80px;
     text-align: center;
-    margin-bottom: 2rem;
+    padding-top: 5rem;
+    position: relative;
 }
 
-.blog-hero-content {
-    max-width: 800px;
-    padding: 0 2rem;
-}
-
-.blog-title {
-    font-size: clamp(3rem, 8vw, 5rem);
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
-}
-
-.blog-subtitle {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.blog-posts {
-    padding-bottom: 6rem;
+.blog-hero h1 {
+    font-size: 3rem;
+    color: var(--text-primary);
 }
 
 .blog-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: 2rem;
+    padding: 2rem 0;
 }
 
 .blog-card {
     background: var(--surface-color);
-    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--surface-border);
+    border-radius: 20px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .blog-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
-    border-color: var(--accent-primary);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .blog-card-image {
@@ -112,28 +92,57 @@
     margin-bottom: 1.5rem;
 }
 
-.blog-read-more {
-    color: var(--accent-primary);
+.blog-play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: var(--accent-gradient);
+    color: white;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.95rem;
-    transition: color 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
-.blog-read-more:hover {
-    color: var(--accent-secondary);
+.blog-play-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+}
+
+.blog-play-btn:hover::before {
+    left: 100%;
+}
+
+.blog-play-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+}
+
+.blog-play-btn svg {
+    flex-shrink: 0;
 }
 
 .download-count {
-    background: var(--accent-primary);
+    background: rgba(255,255,255,0.2);
     color: white;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
     border-radius: 10px;
     font-weight: 700;
+    line-height: 1.4;
 }
 
 @media (max-width: 768px) {
@@ -150,16 +159,16 @@
     }
 }
 
-/* Download Modal */
+/* Download / Video Modal */
 .download-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -177,79 +186,81 @@
 
 .download-modal-content {
     background: var(--surface-color);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--surface-border);
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 2.5rem;
-    max-width: 440px;
+    max-width: 480px;
     width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.35s ease;
     position: relative;
-    transform: translateY(20px) scale(0.95);
-    transition: transform 0.3s ease;
 }
 
 .download-modal.active .download-modal-content {
-    transform: translateY(0) scale(1);
+    transform: scale(1) translateY(0);
 }
 
 .download-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: none;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     color: var(--text-primary);
-    font-size: 1.5rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
     cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.3s, transform 0.3s;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s;
 }
 
 .download-close:hover {
-    color: var(--accent-primary);
-    transform: rotate(90deg);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .download-modal-content h2 {
     font-size: 1.6rem;
-    margin-bottom: 0.3rem;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
 }
 
 .download-modal-content>p {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
 }
 
 .download-modal .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
 }
 
 .download-modal .form-group label {
     display: block;
-    color: var(--text-primary);
-    font-weight: 600;
     font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
     margin-bottom: 0.4rem;
 }
 
 .download-modal .form-group input {
     width: 100%;
-    padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--surface-border);
-    border-radius: 10px;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
     color: var(--text-primary);
-    font-family: var(--font-main);
     font-size: 0.95rem;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border 0.3s;
     outline: none;
+    box-sizing: border-box;
 }
 
 .download-modal .form-group input:focus {
@@ -259,7 +270,7 @@
 
 .download-modal .form-group input::placeholder {
     color: var(--text-secondary);
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .download-modal .form-group input.valid {
@@ -271,22 +282,30 @@
 }
 
 .field-error {
-    display: block;
     color: #ef4444;
     font-size: 0.8rem;
     margin-top: 0.3rem;
-    min-height: 1.1em;
+    display: block;
 }
 
 .download-submit {
     width: 100%;
-    margin-top: 0.8rem;
-    transition: opacity 0.3s;
+    padding: 0.9rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
 }
 
 .download-submit:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+.video-player {
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 12px;
+    display: block;
+    margin-top: 1rem;
 }
 
 @media (max-width: 768px) {

@@ -519,13 +519,28 @@ if (dlName && dlEmail && dlPhone && dlProfession) {
 if (downloadModal && downloadClose) {
     downloadClose.addEventListener('click', () => {
         downloadModal.classList.remove('active');
+        setTimeout(resetVideoModal, 300);
     });
 
     downloadModal.addEventListener('click', (e) => {
         if (e.target === downloadModal) {
             downloadModal.classList.remove('active');
+            setTimeout(resetVideoModal, 300);
         }
     });
+}
+
+function resetVideoModal() {
+    const form = document.getElementById('download-form');
+    const videoContainer = document.getElementById('video-container');
+    const modalTitle = document.querySelector('.download-modal-content h2');
+    const modalDesc = document.querySelector('.download-modal-content p');
+    if (form) form.style.display = '';
+    if (videoContainer) { videoContainer.style.display = 'none'; videoContainer.innerHTML = ''; }
+    if (modalTitle) modalTitle.textContent = '🎬 Video Exclusivo';
+    if (modalDesc) modalDesc.textContent = 'Completa tus datos para acceder al video.';
+    if (downloadForm) downloadForm.reset();
+    validateForm();
 }
 
 if (downloadForm && downloadModal) {
@@ -552,28 +567,41 @@ if (downloadForm && downloadModal) {
             if (leadError) {
                 console.error('Error guardando lead:', leadError);
                 alert('Ocurrió un error al registrar tus datos. Intenta de nuevo.');
-                submitBtn.textContent = 'Descargar Archivo';
+                submitBtn.textContent = 'Reproducir video';
                 return;
             }
         }
 
-        // 2. Abrir PDF inmediatamente
-        const pdfPath = `Blogs%20PDF/${currentDownloadId}.pdf`;
-        window.open(pdfPath, '_blank');
-
-        // 3. Incrementar contador en tabla 'blogs'
+        // 2. Incrementar contador en tabla 'blogs'
         if (db) {
-            const countSpan = document.querySelector(`.blog-read-more[data-id="${currentDownloadId}"] .download-count`);
+            const countSpan = document.querySelector(`.blog-play-btn[data-id="${currentDownloadId}"] .download-count`);
             const newCount = (parseInt(countSpan?.textContent) || 0) + 1;
             if (countSpan) countSpan.textContent = newCount;
 
             await db.from('blogs').update({ downloads: newCount }).eq('id', currentDownloadId);
         }
 
-        // Reset
-        downloadModal.classList.remove('active');
-        downloadForm.reset();
-        submitBtn.textContent = 'Descargar Archivo';
+        // 3. Mostrar video en el modal
+        const form = document.getElementById('download-form');
+        const videoContainer = document.getElementById('video-container');
+        const modalTitle = document.querySelector('.download-modal-content h2');
+        const modalDesc = document.querySelector('.download-modal-content p');
+
+        if (form) form.style.display = 'none';
+        if (modalTitle) modalTitle.textContent = '▶ Reproduciendo';
+        if (modalDesc) modalDesc.textContent = '';
+
+        if (videoContainer) {
+            videoContainer.style.display = 'block';
+            videoContainer.innerHTML = `
+                <video controls autoplay class="video-player">
+                    <source src="Videos/${currentDownloadId}.mp4" type="video/mp4">
+                    Tu navegador no soporta video.
+                </video>
+            `;
+        }
+
+        submitBtn.textContent = 'Reproducir video';
         submitBtn.disabled = true;
         currentDownloadId = null;
     });
@@ -624,23 +652,25 @@ async function renderBlogs() {
                         <span>${post.date}</span>
                         <span>${post.readTime}</span>
                     </div>
-                    <a href="javascript:void(0)" class="blog-read-more" data-id="${post.id}">Descargar <span class="download-count">${post.downloads || 0}</span> ⬇</a>
+                    <a href="javascript:void(0)" class="blog-play-btn" data-id="${post.id}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="8,5 19,12 8,19"/></svg>
+                        Reproducir video
+                        <span class="download-count">${post.downloads || 0}</span>
+                    </a>
                 </div>
             `;
             blogGrid.appendChild(article);
         });
 
-        // Event delegation para descargas
+        // Event delegation para videos
         blogGrid.addEventListener('click', (e) => {
-            const link = e.target.closest('.blog-read-more');
+            const link = e.target.closest('.blog-play-btn');
             if (!link || !downloadModal) return;
 
             e.preventDefault();
             currentDownloadId = parseInt(link.getAttribute('data-id'));
             downloadModal.classList.add('active');
-            // Limpiar formulario al abrir
-            if (downloadForm) downloadForm.reset();
-            validateForm();
+            resetVideoModal();
         });
     } catch (err) {
         console.error('Error inesperado:', err);
