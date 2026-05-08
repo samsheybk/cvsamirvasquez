@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "// Archivo generado automáticamente por GitHub Actions" > config.js
           echo "const SUPABASE_URL = '${{ secrets.SUPABASE_URL }}';" >> config.js
-          echo "const SUPABASE_ANON_KEY = '${{ secrets.SUPABASE_KEY }}';" >> config.js
+          echo "const SUPABASE_ANON_KEY = '${{ secrets.SUPABASE_ANON_KEY }}';" >> config.js
           echo "console.log('Configuración de Supabase cargada desde Secrets');" >> config.js
 
       - name: Setup Pages
