@@ -1,0 +1,54 @@
+/* Experiencia page specific styles */
+
+.exp-hero {
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 80px;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.exp-hero-content {
+    max-width: 800px;
+    padding: 0 2rem;
+}
+
+.exp-title {
+    font-size: clamp(3rem, 8vw, 5rem);
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.exp-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.exp-about .about-grid {
+    gap: 3rem;
+}
+
+.exp-about .about-text p {
+    font-size: 0.95rem;
+}
+
+.exp-section {
+    padding-bottom: 4rem;
+}
+
+@media (max-width: 768px) {
+    .exp-hero {
+        min-height: 50vh;
+    }
+
+    .exp-section {
+        padding-bottom: 3rem;
+    }
+}

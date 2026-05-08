@@ -195,12 +195,9 @@ if (ctaForm) {
         e.preventDefault();
         const name = document.getElementById('cta-name').value.trim();
         const phone = document.getElementById('cta-phone').value.trim();
-        const email = document.getElementById('cta-email').value.trim();
         const message = document.getElementById('cta-message').value.trim();
 
-        let text = `Hola Samir, soy *${name}*. Me interesa crear mi propia web.\n\n`;
-        text += `📱 Teléfono: ${phone}\n`;
-        text += `📧 Correo: ${email}`;
+        let text = `Hola Samir, soy *${name}*. Me interesa crear mi propia web.`;
         if (message) {
             text += `\n\n💬 Mensaje: ${message}`;
         }
@@ -213,13 +210,46 @@ if (ctaForm) {
     });
 }
 
+// Splash Modal Logic
+const splashModal = document.getElementById('splash-modal');
+const splashClose = document.getElementById('splash-close');
+const splashCountdown = document.getElementById('splash-countdown');
+
+if (splashModal && splashClose && splashCountdown) {
+    let seconds = 15;
+    splashCountdown.textContent = seconds;
+
+    function closeSplash() {
+        splashModal.classList.remove('active');
+    }
+
+    splashClose.addEventListener('click', closeSplash);
+
+    splashModal.addEventListener('click', (e) => {
+        if (e.target === splashModal) closeSplash();
+    });
+
+    const timer = setInterval(() => {
+        seconds--;
+        splashCountdown.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            closeSplash();
+        }
+    }, 1000);
+
+    // Mostrar splash con un leve retardo para que cargue la imagen
+    setTimeout(() => {
+        splashModal.classList.add('active');
+    }, 300);
+}
+
 // Supabase Configuration
-const SUPABASE_URL = 'https://ejajfqfhrhfgcuwxiyii.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqYWpmcWZocmhmZ2N1d3hpeWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTQ5MTYsImV4cCI6MjA5MzQ5MDkxNn0.wg2T2nPWM9H1rOoijwCJEO4M0HDqhY9w76DcK-NvSxU';
+// Credenciales cargadas desde config.js (incluido vía <script> en el HTML)
 
 let db = null;
 function initSupabase() {
-    if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
+    if (typeof window.supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'https://tu-proyecto.supabase.co') {
         if (!db) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return true;
     }
@@ -278,7 +308,13 @@ function setupLikes() {
 
         // Update hero stats
         const heroLikes = document.getElementById('hero-likes-count');
-        if (heroLikes) heroLikes.textContent = data.length;
+        if (heroLikes) heroLikes.textContent = formatNumber(data.length);
+    }
+
+    function formatNumber(n) {
+        if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return n;
     }
 
     function escapeHTML(str) {
@@ -320,7 +356,7 @@ function setupLikes() {
 
         if (!error) {
             const heroVisits = document.getElementById('hero-visits-count');
-            if (heroVisits) heroVisits.textContent = count;
+            if (heroVisits) heroVisits.textContent = formatNumber(count);
         }
     }
 
@@ -361,6 +397,21 @@ if (likeBtn && likeCount) {
         localStorage.setItem('cv_has_liked', hasLiked);
     });
 }
+
+// Tech Stack Logo Glow Animation
+function startLogoGlow() {
+    const logos = document.querySelectorAll('.tech-stack-logos img');
+    if (!logos.length) return;
+    let i = 0;
+    function tick() {
+        logos.forEach(l => l.classList.remove('glowing'));
+        logos[i].classList.add('glowing');
+        i = (i + 1) % logos.length;
+    }
+    tick();
+    setInterval(tick, 2000);
+}
+startLogoGlow();
 
 // Blog Dynamic Content
 const blogGrid = document.getElementById('blog-grid');
@@ -550,6 +601,51 @@ async function renderBlogs() {
 }
 
 
+
+// WhatsApp Chat Modal
+(function() {
+    const chatBtn = document.getElementById('whatsapp-chat-btn');
+    const chatModal = document.getElementById('whatsapp-chat-modal');
+    const chatClose = document.getElementById('whatsapp-chat-close');
+    const chatForm = document.getElementById('whatsapp-chat-form');
+
+    if (!chatBtn || !chatModal) return;
+
+    chatBtn.addEventListener('click', () => {
+        chatModal.classList.toggle('active');
+    });
+
+    if (chatClose) {
+        chatClose.addEventListener('click', () => {
+            chatModal.classList.remove('active');
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (chatModal.classList.contains('active') &&
+            !chatModal.contains(e.target) &&
+            e.target !== chatBtn &&
+            !chatBtn.contains(e.target)) {
+            chatModal.classList.remove('active');
+        }
+    });
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('chat-name').value.trim();
+            const phone = document.getElementById('chat-phone').value.trim();
+            const message = document.getElementById('chat-message').value.trim();
+
+            const text = `Hola Samir, soy *${name}*.\n📱 Teléfono: ${phone}\n\n💬 Mensaje: ${message}`;
+            const whatsappUrl = `https://wa.me/584128445726?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+
+            chatModal.classList.remove('active');
+            chatForm.reset();
+        });
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', renderBlogs);
 

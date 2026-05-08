@@ -52,7 +52,7 @@
 
 .blog-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
     border-color: var(--accent-primary);
 }
 
@@ -254,7 +254,7 @@
 
 .download-modal .form-group input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .download-modal .form-group input::placeholder {
