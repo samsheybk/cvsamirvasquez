@@ -24,21 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Supabase credentials
+      - name: Create config.js from Secrets
         run: |
-          cat > config.js << 'EOF'
-          const SUPABASE_URL = '${{ secrets.SUPABASE_URL }}';
-          const SUPABASE_ANON_KEY = '${{ secrets.SUPABASE_ANON_KEY }}';
-          EOF
+          echo "// Archivo generado automáticamente por GitHub Actions" > config.js
+          echo "const SUPABASE_URL = '${{ secrets.SUPABASE_URL }}';" >> config.js
+          echo "const SUPABASE_ANON_KEY = '${{ secrets.SUPABASE_KEY }}';" >> config.js
+          echo "console.log('Configuración de Supabase cargada desde Secrets');" >> config.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
